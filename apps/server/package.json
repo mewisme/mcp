@@ -1,13 +1,13 @@
 {
   "name": "@meewmeew/mcp",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": false,
   "type": "module",
   "description": "MCP management server: plugin loading, lifecycle, persistence, stdio MCP transport.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meewmeew/mcp-management.git",
+    "url": "https://github.com/mewisme/mcp.git",
     "directory": "apps/server"
   },
   "exports": {
