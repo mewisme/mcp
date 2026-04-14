@@ -4,8 +4,9 @@ export default defineConfig({
   entry: ['src/bootstrap/index.ts'],
   format: ['esm'],
   clean: true,
+  dts: true,
   sourcemap: true,
-  minify: false,
+  minify: true,
   banner: {
     js: '#!/usr/bin/env node',
   },
