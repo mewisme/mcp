@@ -1,159 +1,86 @@
-# Turborepo starter
+# mcp-management
 
-This Turborepo starter is maintained by the Turborepo core team.
+Monorepo for an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) management stack: a Node.js server that loads plugins, registers tools via the MCP SDK, persists state, and speaks MCP over **stdio**, plus a **Next.js** web UI. Tooling is **pnpm** + **Turborepo**; packages are TypeScript-first.
 
-## Using this example
+**Repository:** [github.com/mewisme/mcp](https://github.com/mewisme/mcp)
 
-Run the following command:
+## Requirements
 
-```sh
-npx create-turbo@latest
+- **Node.js** 22+ (see root `package.json` `engines`)
+- **pnpm** 10+ (version pinned via `packageManager` in root `package.json`)
+
+## Quick start
+
+```bash
+pnpm install
+pnpm dev
 ```
 
-## What's inside?
+`pnpm dev` runs every workspace package’s `dev` script via Turborepo. To work on one app:
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@meewmeew/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@meewmeew/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@meewmeew/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+pnpm exec turbo dev --filter=@meewmeew/mcp    # MCP server (watch)
+pnpm exec turbo dev --filter=@meewmeew/web    # Next.js app
 ```
 
-Without global `turbo`, use your package manager:
+Build, quality checks, and tests from the repo root:
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+```bash
+pnpm build
+pnpm lint
+pnpm check-types
+pnpm test
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Format sources with Prettier: `pnpm format`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## What’s in the repo
 
-```sh
-turbo build --filter=docs
-```
+| Area | Location | Package | Role |
+|------|----------|---------|------|
+| MCP server | `apps/server` | `@meewmeew/mcp` | Plugin loading, lifecycle, persistence, stdio MCP transport; CLI `mcp-management` |
+| Web app | `apps/web` | `@meewmeew/web` | Next.js 16 UI (App Router under `src/app/`) |
+| Built-in plugins | `packages/builtin-plugins` | `@meewmeew/builtin-plugins` | Curated plugins; registry export `BUILTIN_PLUGINS` |
+| Plugin API | `packages/plugin-sdk` | `@meewmeew/plugin-sdk` | Contracts, manifests, tool registration |
+| Shared utilities | `packages/shared` | `@meewmeew/shared` | Logger, errors, path guards / allowed roots |
+| Tooling | `packages/eslint-config`, `packages/typescript-config` | — | Shared ESLint and TypeScript bases |
 
-Without global `turbo`:
+Workspace layout is declared in `pnpm-workspace.yaml` (`apps/*`, `packages/*`).
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+## MCP server (`@meewmeew/mcp`)
 
-### Develop
+The server bootstraps in `apps/server/src/bootstrap/`, registers plugin loaders (built-in, and optionally path / package / bundle when allowed), runs a **PluginManager** with an execution policy, and exposes MCP over **stdio**.
 
-To develop all apps and packages, run the following command:
+- **Published package:** `@meewmeew/mcp` on npm (build output under `apps/server/dist/`).
+- **Local config:** copy `apps/server/.env.example` to `.env` in the directory you run from (`dotenv` loads the cwd’s `.env`).
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+**Persistence and logs**
 
-```sh
-cd my-turborepo
-turbo dev
-```
+- JSON state: `store.json` under **`MCP_DATA_DIR`** (default `~/.mcp-management` on the current user).
+- Plugin audit log: `{MCP_DATA_DIR}/logs/plugin-audit.log` (Winston), separate from `store.json`.
+- In-memory persistence: `MCP_IN_MEMORY_PERSISTENCE=true`, or when `NODE_ENV=test`.
 
-Without global `turbo`, use your package manager:
+**Security / plugins**
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
+- External loaders (path, package, bundle) require **`MCP_ALLOW_EXTERNAL_PLUGINS=true`**; built-ins always load.
+- Filesystem-related tooling respects blocked OS paths and optional **`MCP_FS_ALLOWED_ROOTS`** (comma-separated paths); see `@meewmeew/shared`.
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Full CLI options, scripts table, and architecture notes: [`apps/server/README.md`](apps/server/README.md).
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Web app (`@meewmeew/web`)
 
-```sh
-turbo dev --filter=web
-```
+Next.js **16**, React **19**, Tailwind **4**. Routes live under `apps/web/src/app/`. For editor/agent notes on this stack, see [`AGENTS.md`](AGENTS.md) and [`apps/web/AGENTS.md`](apps/web/AGENTS.md).
 
-Without global `turbo`:
+## Versioning and release
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+- **`pnpm bump`** (or `node scripts/bump.js [major|minor|patch]`) bumps the **root** `package.json` version only.
+- CI (`.github/workflows/mcp-server.yml`) on `main`: builds and tests `@meewmeew/mcp`, syncs `apps/server/package.json` from the root version, creates the `vX.Y.Z` git tag if missing, and publishes **`@meewmeew/mcp`** to npm when `NPM_TOKEN` is configured.
 
-### Remote Caching
+## Documentation for contributors
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+- **[`AGENTS.md`](AGENTS.md)** — monorepo layout, commands, server mental model, how to add a built-in plugin (see also `.cursor/skills/builtin-tool-plugin/SKILL.md`).
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+## Useful links
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [Turborepo — tasks and filters](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
