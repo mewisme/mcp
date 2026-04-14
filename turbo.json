@@ -1,14 +1,30 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "MCP_ALLOW_EXTERNAL_PLUGINS",
+    "MCP_DATA_DIR",
+    "MCP_IN_MEMORY_PERSISTENCE",
+    "LOG_LEVEL",
+    "NODE_ENV",
+    "PORT",
+    "ProgramData",
+    "ProgramFiles",
+    "ProgramFiles(x86)",
+    "SystemRoot"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
     },
     "check-types": {
       "dependsOn": ["^check-types"]

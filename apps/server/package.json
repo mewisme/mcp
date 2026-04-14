@@ -1,0 +1,54 @@
+{
+  "name": "@meewmeew/mcp",
+  "version": "0.0.0",
+  "private": false,
+  "type": "module",
+  "description": "MCP management server: plugin loading, lifecycle, persistence, stdio MCP transport.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meewmeew/mcp-management.git",
+    "directory": "apps/server"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "bin": {
+    "mcp-management": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "dev": "tsx watch src/bootstrap/index.ts",
+    "start": "node dist/index.js",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "adm-zip": "^0.5.17",
+    "dotenv": "^17.4.2",
+    "fs-extra": "^11.3.4",
+    "tsx": "^4.19.3",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@meewmeew/builtin-plugins": "workspace:*",
+    "@meewmeew/eslint-config": "workspace:*",
+    "@meewmeew/plugin-sdk": "workspace:*",
+    "@meewmeew/shared": "workspace:*",
+    "@meewmeew/typescript-config": "workspace:*",
+    "@types/adm-zip": "^0.5.8",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22",
+    "typescript": "5.9.2"
+  }
+}
