@@ -4,6 +4,7 @@ import { RepoNavigationPluginDefinition } from './repo-navigation/index.js';
 import { TestQualityPluginDefinition } from './test-quality/index.js';
 import { PackageManagerPluginDefinition } from './package-manager/index.js';
 import { HttpFetchPluginDefinition } from './http-fetch/index.js';
+import { ShellPluginDefinition } from './shell/index.js';
 
 export const BUILTIN_PLUGINS = [
   NodeSandboxPluginDefinition,
@@ -12,4 +13,5 @@ export const BUILTIN_PLUGINS = [
   TestQualityPluginDefinition,
   PackageManagerPluginDefinition,
   HttpFetchPluginDefinition,
+  ShellPluginDefinition,
 ];
