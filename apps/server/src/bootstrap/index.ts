@@ -11,11 +11,13 @@ import { PathLoader } from '../plugin-loader/path-loader.js';
 import { PackageLoader } from '../plugin-loader/package-loader.js';
 import { BundleLoader } from '../plugin-loader/bundle-loader.js';
 import { createPersistence } from '../persistence/factory.js';
+import { getServerVersion } from '../version.js';
 
 const logger = createConsoleLogger('Bootstrap');
 
 async function bootstrap() {
-  logger.info(`Starting MCP Core Server in ${config.env} mode...`);
+  const serverVersion = getServerVersion();
+  logger.info(`MCP Core Server v${serverVersion} — ${config.env} mode`);
 
   // Initialize persistence layer
   const persistence = createPersistence({
@@ -28,7 +30,7 @@ async function bootstrap() {
   const pluginRegistry = new PluginRegistry();
   const runtimeRegistry = new MCPRuntimeRegistry();
   const executionPolicy = new ExecutionPolicy();
-  const mcpAdapter = new MCPServerAdapter(runtimeRegistry, 'mcp-core-server');
+  const mcpAdapter = new MCPServerAdapter(runtimeRegistry, 'mcp-core-server', serverVersion);
 
   // Register loaders
   loaderRegistry.registerLoader(new BuiltinLoader());
