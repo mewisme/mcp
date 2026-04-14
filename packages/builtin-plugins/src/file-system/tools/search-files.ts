@@ -10,7 +10,8 @@ const execAsync = promisify(exec);
 export function createSearchFilesTool(guard: FileSystemPathGuard): RegisteredTool {
   return {
     name: 'search_files',
-    description: 'Search for files matching a pattern',
+    description:
+      'Find files by filename substring (not file contents). Matches path segments containing the pattern. For content search use grep.',
     inputSchema: {
       type: 'object',
       properties: {

@@ -1,10 +1,14 @@
 import { PluginContract, PluginContext, PluginActivationResult } from '@meewmeew/plugin-sdk';
 import { FileSystemPathGuard } from './path-guard.js';
 import {
+  createAppendFileTool,
   createCreateDirectoryTool,
+  createDeleteFileTool,
   createDirectoryTreeTool,
   createEditFileTool,
   createGetFileInfoTool,
+  createGlobFilesTool,
+  createGrepContentTool,
   createListAllowedDirectoriesTool,
   createListDirectoryTool,
   createListDirectoryWithSizesTool,
@@ -13,6 +17,7 @@ import {
   createReadMultipleFilesTool,
   createReadTextFileTool,
   createRemoveDirectoryTool,
+  createReplaceContentTool,
   createSearchFilesTool,
   createWriteFileTool
 } from './tools/index.js';
@@ -31,12 +36,17 @@ export class FileSystemPlugin implements PluginContract {
     register(createListDirectoryWithSizesTool(guard));
     register(createDirectoryTreeTool(guard));
     register(createSearchFilesTool(guard));
+    register(createGlobFilesTool(guard));
+    register(createGrepContentTool(guard));
     register(createGetFileInfoTool(guard));
     register(createListAllowedDirectoriesTool(guard));
     register(createCreateDirectoryTool(guard));
     register(createWriteFileTool(guard));
     register(createEditFileTool(guard));
+    register(createReplaceContentTool(guard));
+    register(createAppendFileTool(guard));
     register(createMoveFileTool(guard));
+    register(createDeleteFileTool(guard));
     register(createRemoveDirectoryTool(guard));
 
     return { metadata: { activatedAt: Date.now() } };
