@@ -27,7 +27,8 @@
       "outputs": []
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["^check-types", "^build"],
+      "outputs": []
     },
     "dev": {
       "cache": false,
