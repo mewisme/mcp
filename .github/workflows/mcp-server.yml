@@ -1,12 +1,11 @@
-# Publishes @meewmeew/mcp when a version tag is pushed (e.g. v0.1.0).
-# Add repository secret NPM_TOKEN: npm "Automation" token or granular token with publish.
+# Bump version in root package.json on main, then push — CI syncs apps/server, creates tag vX.Y.Z if missing, publishes @meewmeew/mcp.
+# Requires repository secret NPM_TOKEN (npm Automation or granular publish token).
 
 name: MCP server
 
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   workflow_dispatch:
 
 jobs:
@@ -32,12 +31,15 @@ jobs:
 
   publish:
     needs: build
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: needs.build.result == 'success' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: pnpm/action-setup@v5
 
@@ -50,10 +52,24 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Align package version with git tag
+      - name: Sync apps/server version from root package.json
         run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          node -e "const fs=require('fs'); const p='apps/server/package.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); j.version=process.argv[1]; fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');" "$TAG"
+          VERSION=$(node -p "require('./package.json').version")
+          node -e "const fs=require('fs'); const v=process.argv[1]; const p='apps/server/package.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); j.version=v; fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');" "$VERSION"
+          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Create git tag if missing
+        run: |
+          TAG="v${RELEASE_VERSION}"
+          git fetch origin --tags
+          if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q .; then
+            echo "Tag ${TAG} already exists on remote."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "${TAG}" -m "Release ${TAG}"
+            git push origin "${TAG}"
+          fi
 
       - name: Build
         run: pnpm exec turbo run build --filter=@meewmeew/mcp

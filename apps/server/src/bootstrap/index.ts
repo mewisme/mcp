@@ -58,8 +58,10 @@ async function bootstrap() {
 
     await mcpAdapter.connectStdio();
     logger.info('Listening on stdio for MCP protocol requests.');
-  } catch (err: any) {
-    logger.error('Failed to bootstrap the server:', err);
+  } catch (err: unknown) {
+    logger.error('Failed to bootstrap the server:', {
+      error: err instanceof Error ? err.message : String(err),
+    });
     process.exit(1);
   }
 }

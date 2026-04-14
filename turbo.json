@@ -3,6 +3,7 @@
   "ui": "tui",
   "globalEnv": [
     "MCP_ALLOW_EXTERNAL_PLUGINS",
+    "MCP_FS_ALLOWED_ROOTS",
     "MCP_DATA_DIR",
     "MCP_IN_MEMORY_PERSISTENCE",
     "LOG_LEVEL",

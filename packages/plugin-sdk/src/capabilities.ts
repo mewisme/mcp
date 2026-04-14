@@ -2,6 +2,13 @@
  * Standard MCP Capability Shapes
  */
 
+/** Resource payload embedded in tool or prompt content (MCP-shaped). */
+export interface EmbeddedResource {
+  uri?: string;
+  mimeType?: string;
+  text?: string;
+}
+
 export interface ToolCapability {
   name: string;
   description: string;
@@ -26,7 +33,13 @@ export interface PromptCapability {
 }
 
 export interface ToolResult {
-  content: { type: 'text' | 'image' | 'resource'; text?: string; data?: string; mimeType?: string; resource?: any }[];
+  content: {
+    type: 'text' | 'image' | 'resource';
+    text?: string;
+    data?: string;
+    mimeType?: string;
+    resource?: EmbeddedResource;
+  }[];
   isError?: boolean;
 }
 
@@ -44,7 +57,7 @@ export interface RegisteredResource extends ResourceCapability {
 
 export interface PromptMessage {
   role: 'user' | 'assistant';
-  content: { type: 'text' | 'resource'; text?: string; resource?: any };
+  content: { type: 'text' | 'resource'; text?: string; resource?: EmbeddedResource };
 }
 
 export interface PromptResult {

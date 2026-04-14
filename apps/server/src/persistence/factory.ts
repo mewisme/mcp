@@ -14,7 +14,9 @@ function assertDataDirWritable(dataDir: string): void {
     fs.writeFileSync(probe, 'ok');
     fs.unlinkSync(probe);
   } catch (err) {
-    logger.error(`MCP data directory is not usable (create/write failed): ${dataDir}`, err);
+    logger.error(`MCP data directory is not usable (create/write failed): ${dataDir}`, {
+      error: err instanceof Error ? err.message : String(err),
+    });
     process.exit(1);
   }
 }
